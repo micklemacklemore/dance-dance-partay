@@ -63,9 +63,46 @@ actually affect the dancing animation.
 * Thinking of the possibility of doing crowds to support a whole club of dancing humanoids: https://learn.unity.com/project/crowd-simulation
 
 ### Design:
-- How will your program fit together? Make a simple free-body diagram illustrating the pieces.
 
-... 
+```
+             ┌────────────────┐                   
+             │ User Interface │                   
+             └┬──┬────────┬─┬─┘                   
+              │  │        │ │                     
+        ┌─────┘  │        │ └────────────┐        
+        │        │        │              │        
+   ┌────▼───┐    │  ┌─────▼─────────┐    │        
+   │ Sliders│    │  │Music Selection│    │        
+   └────────┘    │  └───────────────┘    ▼        
+                 │               ┌──────────────┐ 
+          ┌──────▼────────┐      │ Environment  │ 
+          │Dance Selection│      │Controls Pane │ 
+          └───────────────┘      └──────────────┘ 
+                                                  
+    ┌──────────────────────────────────────┐      
+    │ Character IK Controller / Scripting  │      
+    └──────────────────┬───────────────────┘      
+                       │                          
+                ┌──────▼───────┐                  
+                │ Sync-to-beat │                  
+            ┌───┴──────────────┴──┐               
+            │                     │               
+    ┌───────▼────────┐   ┌────────▼──────┐        
+    │Noise Functions │   │ Wave Functions│        
+    └─────────┬──────┘   └───────┬───────┘        
+              └─────┐     ┌──────┘                
+                 ┌──▼─────▼───┐                   
+                 │Dance Modes │                   
+                 └────────────┘                   
+                                                  
+              ┌──────────────────────┐            
+              │ Environment / Scene  │            
+              └─┬────────┬───────┬───┘            
+        ┌───────┘        │       └───────┐        
+┌───────▼─────────┐  ┌───▼────┐  ┌───────▼───────┐
+│Background Scene │  │Lighting│  │ Camera Angles │
+└─────────────────┘  └────────┘  └───────────────┘
+```
 
 ### Timeline:
 
