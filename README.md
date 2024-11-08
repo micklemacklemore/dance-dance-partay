@@ -1,33 +1,44 @@
 # Final Project!
 
-This is it! The culmination of your procedural graphics experience this semester. For your final project, we'd like to give you the time and space to explore a topic of your choosing. You may choose any topic you please, so long as you vet the topic and scope with an instructor or TA. We've provided some suggestions below. The scope of your project should be roughly 1.5 homework assignments). To help structure your time, we're breaking down the project into 4 milestones:
-
-## Project planning: Design Doc (due 11/6)
-Before submitting your first milestone, _you must get your project idea and scope approved by Rachel, Adam or a TA._
-
-### Design Doc
+## Design Doc
 Start off by forking this repository. In your README, write a design doc to outline your project goals and implementation plan. It must include the following sections:
 
-#### Introduction
+### Introduction
 - What motivates your project?
 
-#### Goal
+### Goal
 - What do you intend to achieve with this project?
 
-#### Inspiration/reference:
-- You must have some form of reference material for your final project. Your reference may be a research paper, a blog post, some artwork, a video, another class at Penn, etc.  
-- Include in your design doc links to and images of your reference material.
+### Inspiration/reference:
 
-#### Specification:
+#### Procedural dancing generated from noise functions in Unity
+
+* https://www.youtube.com/watch?v=9KmuHY-SwUU 
+* https://github.com/keijiro/PuppetTest
+
+![gif](https://i.imgur.com/F8wrLm9.gif)
+![gif](https://i.imgur.com/XLNbNfT.gif)
+
+#### Interactive dance party with sliders
+
+* https://dddance.party/
+		+ password: TOOFUZZYTOSTOP
+
+<img src="https://github.com/user-attachments/assets/f002e83b-5498-4b3d-8751-f88edcc4a6af" width=600px>
+<img src="https://github.com/user-attachments/assets/f4304789-d379-43a0-b396-ddc800ef7bb6" width=600px>
+
+
+
+### Specification:
 - Outline the main features of your project.
 
-#### Techniques:
+### Techniques:
 - What are the main technical/algorithmic tools you’ll be using? Give an overview, citing specific papers/articles.
 
-#### Design:
+### Design:
 - How will your program fit together? Make a simple free-body diagram illustrating the pieces.
 
-#### Timeline:
+### Timeline:
 - Create a week-by-week set of milestones for each person in your group. Make sure you explicitly outline what each group member's duties will be.
 
 Submit your Design doc as usual via pull request against this repository.
