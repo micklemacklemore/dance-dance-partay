@@ -159,6 +159,15 @@ namespace Puppet
 
         #endregion
 
+        public override void initializeProperties()
+        {
+            base.initializeProperties();
+            this.propFloats["Foot Distance"] = new SetFloat((x) => this.footDistance = x, 0.2f, 2.0f, footDistance); 
+            this.propFloats["Step Frequency"] = new SetFloat((x) => this.stepFrequency = x, 0.0f, 1.6f, stepFrequency); 
+            this.propFloats["Step Height"] = new SetFloat((x) => this.stepHeight = x, 0.1f, 1.25f, stepHeight); 
+            this.propFloats["Step Angle"] = new SetFloat((x) => this.stepAngle = x, 0.1f, 180f, stepAngle); 
+        }
+
         #region Local properties and functions for foot animation
 
         // What number the current step is
@@ -330,10 +339,7 @@ namespace Puppet
             _feet[0] = origin - foot;
             _feet[1] = origin + foot;
 
-            this.propFloats["Foot Distance"] = new SetFloat((x) => this.footDistance = x, 0.0f, 2.0f, footDistance); 
-            this.propFloats["Step Frequency"] = new SetFloat((x) => this.stepFrequency = x, 0.0f, 1.6f, stepFrequency); 
-            this.propFloats["Step Height"] = new SetFloat((x) => this.stepHeight = x, 0.75f, 1.25f, stepHeight); 
-            this.propFloats["Step Angle"] = new SetFloat((x) => this.stepAngle = x, 0.75f, 1.25f, stepAngle); 
+            initializeProperties(); 
         }
 
         void Update()

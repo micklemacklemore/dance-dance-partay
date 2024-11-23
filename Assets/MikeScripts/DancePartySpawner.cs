@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Puppet;
 using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class DancePartySpawner : MonoBehaviour
 {
@@ -34,7 +35,19 @@ public class DancePartySpawner : MonoBehaviour
                 // Debug.Log(entry.Key); 
                 var newSlider = Instantiate(_slider); 
                 newSlider.transform.SetParent(_sliderContainer.transform); 
-                newSlider.transform.localScale = new Vector3(2.5f, 2.5f, 2.5f); 
+                newSlider.transform.localScale = new Vector3(1f, 1f, 1f); 
+
+                var handler = newSlider.GetComponentInChildren<SliderHandler>(); 
+                handler.propertyName = entry.Key; 
+
+                var slider = newSlider.GetComponentInChildren<Slider>(); 
+                var values = entry.Value; 
+                slider.maxValue = values.max; 
+                slider.minValue = values.min; 
+
+                var sliderLabel = newSlider.GetComponentInChildren<TextMeshProUGUI>(); 
+                sliderLabel.SetText(entry.Key); 
+
                 newSlider.SetActive(true); 
                 newDancer = false; 
             }
@@ -87,7 +100,8 @@ public class DancePartySpawner : MonoBehaviour
         SpawnDancer(newIndex);
     }
 
-    public void TestSlider(string property, float value) {
-        Debug.Log($"Spawner: Property: {property}, Value: {value}");
+    public void SetDanceProperty(string property, float value) {
+        var dancer = currentDancer.GetComponentInChildren<DancerBase>(); 
+        dancer.SetDanceProperty(property, value); 
     }
 }

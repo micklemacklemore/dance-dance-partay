@@ -7,6 +7,10 @@ public class SliderHandler : MonoBehaviour
     [SerializeField] private Slider slider; // Reference to the slider
     [SerializeField] private DancePartySpawner spawner; 
 
+    public string propertyName {
+        set { property = value; }
+    }
+
     void Start()
     {
         slider.onValueChanged.AddListener(OnSliderValueChanged);
@@ -19,6 +23,6 @@ public class SliderHandler : MonoBehaviour
 
     private void OnSliderValueChanged(float value)
     {
-        spawner.TestSlider(property, value); 
+        spawner.SetDanceProperty(property, value); 
     }
 }

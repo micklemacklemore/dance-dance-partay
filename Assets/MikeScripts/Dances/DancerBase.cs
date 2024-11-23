@@ -29,6 +29,10 @@ public class DancerBase : MonoBehaviour
     
     public Dictionary<string, SetFloat> propFloats = new Dictionary<string, SetFloat>(); 
 
+    public virtual void initializeProperties() {
+        // Override this to fill propFloats, propInts, etc.
+    }
+
     public void SetDanceProperty(string name, float value) {
         if (propFloats.TryGetValue(name, out var setfloat))
         {

@@ -2,9 +2,6 @@ using UnityEngine;
 using Unity.Mathematics;
 using Klak.Math;
 using Noise = Klak.Math.NoiseHelper;
-using System;
-using System.Security.Cryptography.X509Certificates;
-using UnityEditor.AnimatedValues;
 
 namespace Puppet
 {
@@ -20,14 +17,15 @@ namespace Puppet
 
         private Quaternion _bodyRotation; 
 
-        private int _debugCycle = 0; 
+        // private int _debugCycle = 0; 
+        // [SerializeField] private float _rotationSpeed = 0.2f; // Speed for smoothing rotation
+        // private Quaternion _currentRotation;  // Current rotation
         private float _offset = 0.0f; 
         private float _targetOffset = 0.0f; 
         private float _transitionSpeed = 5.0f; 
 
-        private Quaternion _currentRotation;  // Current rotation
         private Quaternion _targetRotation;   // Target rotation
-        [SerializeField] private float _rotationSpeed = 0.2f; // Speed for smoothing rotation
+        
 
         private bool _newCycle = false; 
 
