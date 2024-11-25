@@ -162,11 +162,29 @@ namespace Puppet
         public override void initializeProperties()
         {
             base.initializeProperties();
-            this.propFloats["Foot Distance"] = new SetFloat((x) => this.footDistance = x, 0.2f, 2.0f, footDistance); 
-            this.propFloats["Step Frequency"] = new SetFloat((x) => this.stepFrequency = x, 0.0f, 1.6f, stepFrequency); 
-            this.propFloats["Step Height"] = new SetFloat((x) => this.stepHeight = x, 0.1f, 1.25f, stepHeight); 
-            this.propFloats["Step Angle"] = new SetFloat((x) => this.stepAngle = x, 0.1f, 180f, stepAngle); 
+            
+            this.propFloats["Foot Distance"] = new SetFloat((x) => this.footDistance = x, 0.1f, 1.0f, footDistance);
+            this.propFloats["Step Frequency"] = new SetFloat((x) => this.stepFrequency = x, 0.1f, 5.0f, stepFrequency);
+            this.propFloats["Step Height"] = new SetFloat((x) => this.stepHeight = x, 0.05f, 1.0f, stepHeight);
+            this.propFloats["Step Angle"] = new SetFloat((x) => this.stepAngle = x, 0f, 360f, stepAngle);
+            this.propFloats["Max Distance"] = new SetFloat((x) => this.maxDistance = x, 0.1f, 5.0f, maxDistance);
+
+            this.propFloats["Hip Height"] = new SetFloat((x) => this.hipHeight = x, 0.5f, 2.0f, hipHeight);
+            this.propFloats["Hip Position Noise"] = new SetFloat((x) => this.hipPositionNoise = x, 0f, 0.5f, hipPositionNoise);
+            this.propFloats["Hip Rotation Noise"] = new SetFloat((x) => this.hipRotationNoise = x, 0f, 90f, hipRotationNoise);
+
+            this.propFloats["Spine Bend"] = new SetFloat((x) => this.spineBend = x, -30f, 30f, spineBend);
+            // this.propVectors["Spine Rotation Noise"] = new SetVector3((x) => this.spineRotationNoise = x, new Vector3(0f, 0f, 0f), new Vector3(90f, 90f, 90f), spineRotationNoise);
+
+            // this.propVectors["Hand Position"] = new SetVector3((x) => this.handPosition = x, new Vector3(-1f, -1f, -1f), new Vector3(1f, 1f, 1f), handPosition);
+            // this.propVectors["Hand Position Noise"] = new SetVector3((x) => this.handPositionNoise = x, new Vector3(0f, 0f, 0f), new Vector3(1f, 1f, 1f), handPositionNoise);
+
+            this.propFloats["Head Move"] = new SetFloat((x) => this.headMove = x, 0f, 10f, headMove);
+
+            this.propFloats["Noise Frequency"] = new SetFloat((x) => this.noiseFrequency = x, 0.1f, 5.0f, noiseFrequency);
+            // this.propUInts["Random Seed"] = new SetUInt((x) => this.randomSeed = x, 0, uint.MaxValue, randomSeed);
         }
+
 
         #region Local properties and functions for foot animation
 

@@ -2,6 +2,8 @@ using UnityEngine;
 using Unity.Mathematics;
 using Klak.Math;
 using Noise = Klak.Math.NoiseHelper;
+using math = Unity.Mathematics;
+using System;
 
 namespace Puppet
 {
@@ -15,9 +17,12 @@ namespace Puppet
 
         [SerializeField] public float _frequency = 1.2f; 
 
+        [SerializeField] public float _maxJumpingHeight = 0.5f; 
+
+
         private Quaternion _bodyRotation; 
 
-        // private int _debugCycle = 0; 
+        private int _debugCycle = 0; 
         // [SerializeField] private float _rotationSpeed = 0.2f; // Speed for smoothing rotation
         // private Quaternion _currentRotation;  // Current rotation
         private float _offset = 0.0f; 
@@ -34,6 +39,11 @@ namespace Puppet
 
         XXHash _hash;
         float2 _noise;
+
+        public override void initializeProperties() {
+            base.initializeProperties();
+            this.propFloats["Max Jumping Height"] = new SetFloat((x) => _maxJumpingHeight = x, 0.2f, 5.0f, _maxJumpingHeight); 
+        }
 
         // Foot positions
         public Vector3[] _feet = new Vector3[2];
@@ -80,6 +90,8 @@ namespace Puppet
 
             _knees[0] = origin - foot; 
             _knees[1] = origin + foot; 
+
+            initializeProperties(); 
         }
 
         #region "Update Functions"
@@ -89,8 +101,6 @@ namespace Puppet
         }
 
         void UpdateBodyPosition() {
-            // Bobbing effect: Sine wave for vertical movement
-            float bobbingHeight = 0.5f; // Amplitude of the bobbing
 
             // Sine wave modulation
             float modulate = Mathf.Sin(2 * Mathf.PI * Time.time * _frequency);
@@ -99,14 +109,14 @@ namespace Puppet
 
             if (_newCycle) {
                 // Generate a new target offset for the next jump height
-                _targetOffset = Mathf.Clamp(noise.snoise(_noise), -0.0f, 0.5f); 
+                _targetOffset = (0.5f * noise.snoise(_noise) + 1.0f) * _maxJumpingHeight; 
             }
 
             // Smoothly transition _offset towards _targetOffset
             _offset = Mathf.Lerp(_offset, _targetOffset, Time.deltaTime * _transitionSpeed);
 
             // Calculate the new Y position
-            float newY = modulate * bobbingHeight + _offset;
+            float newY = modulate * _maxJumpingHeight + _offset;
 
             // newY = Mathf.Clamp(newY, -0.5f, 30.0f); 
 
@@ -131,7 +141,7 @@ namespace Puppet
             
 
             // Smoothly interpolate the current rotation towards the target rotation
-            _bodyRotation = Quaternion.Slerp(_bodyRotation, _targetRotation, 0.0f);
+            _bodyRotation = Quaternion.Slerp(_bodyRotation, _targetRotation, 0.1f);
         }
         
 
@@ -141,11 +151,27 @@ namespace Puppet
 
         #endregion
 
+        static float bpm = 118f; 
+        float beatInterval = 60.0f / bpm; // Duration of one beat
+        float lastBeatTime = 0.0f; // Tracks the time of the last beat
+        int beatCounter = 0; // Counter for the beats
+
         void Update()
         {
                 // Noise update
                 _noise.x += _noiseFrequency * Time.deltaTime;
                 float modulate = Mathf.Sin(2 * Mathf.PI * Time.time * _frequency);
+
+                
+                float stepProgress = (Time.time % beatInterval) / beatInterval;
+
+                if (Time.time - lastBeatTime >= beatInterval)
+                {
+                    lastBeatTime += beatInterval; // Update the last beat time
+                    Debug.Log(beatCounter++); // Increment the beat counter
+                    
+                }
+                
 
                 if (modulate < -0.99f)
                 {
