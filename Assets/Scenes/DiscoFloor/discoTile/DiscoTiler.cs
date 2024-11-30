@@ -13,7 +13,7 @@ public class DiscoTiler : MonoBehaviour
     {
         for (var i = -_columns / 2; i < _columns / 2; i++) {
             for (var j = -_rows / 2; j < _rows / 2; j++) {
-                var pos = transform.position + new Vector3(1.22f * i, 0, 1.22f * j); 
+                var pos = transform.position + new Vector3(1.20f * i, 0, 1.20f * j); 
                 var rot = Quaternion.identity; 
                 var go = Instantiate(_prefab, pos, rot);
                 var render = go.GetComponentInChildren<Renderer>();
