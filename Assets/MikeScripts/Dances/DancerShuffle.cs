@@ -30,6 +30,8 @@ namespace Puppet
         private float _targetOffset = 0.0f;
         private float _transitionSpeed = 5.0f;
 
+        private Transform _currentTransform = null; 
+
         // Foot and knee positions
         private Vector3[] _feet = new Vector3[2];
         private Vector3[] _knees = new Vector3[2];
@@ -65,6 +67,8 @@ namespace Puppet
             _knees[0] = origin - footOffset + kneeOffset;
             _knees[1] = origin + footOffset + kneeOffset;
 
+            _currentTransform = transform; 
+
             initializeProperties();
         }
 
@@ -80,6 +84,9 @@ namespace Puppet
 
             // Play audio on beat
             if (metronome) PlayMetronomeOnBeat();
+
+            DrawRay(); 
+            _currentTransform = transform; 
         }
 
         /// <summary>
@@ -178,7 +185,9 @@ namespace Puppet
             var pos = handPosition; 
             if (isLeft) pos.x *= -1; 
 
-            pos = _animator.bodyRotation * pos + _animator.bodyPosition;
+            if (_animator != null) {
+                pos = _animator.bodyRotation * pos + _animator.bodyPosition;
+            }
 
             return pos; 
         }
@@ -193,6 +202,28 @@ namespace Puppet
             Gizmos.DrawSphere(GetHandPosition(1), 0.1f); 
         }
 
+
+        void DrawRay() {
+            // Define the origin of the ray (e.g., from the object's position)
+            Vector3 origin = _feet[0];
+
+            // Define the direction of the ray (e.g., forward from the object's perspective)
+            Vector3 direction = -transform.up;
+
+            // Ray length
+            float rayLength = 10f;
+
+            // Visualize the ray in the editor
+            Debug.DrawRay(origin, direction * rayLength, Color.red);
+
+            // Perform the raycast
+            if (Physics.Raycast(origin, direction, out RaycastHit hitInfo, rayLength))
+            {
+                // Log what the ray hit
+                //Debug.Log("Ray hit: " + hitInfo.collider.name);
+            }
+        }
+
         void OnAnimatorIK(int layerIndex)
         {
             // Update the body position and rotation
@@ -204,6 +235,12 @@ namespace Puppet
             _animator.SetIKPosition(AvatarIKGoal.RightFoot, _feet[1]);
             _animator.SetIKPositionWeight(AvatarIKGoal.LeftFoot, 1);
             _animator.SetIKPositionWeight(AvatarIKGoal.RightFoot, 1);
+
+            _animator.SetIKRotation(AvatarIKGoal.LeftFoot, _bodyRotation);
+            _animator.SetIKRotation(AvatarIKGoal.RightFoot, _bodyRotation);
+            _animator.SetIKRotationWeight(AvatarIKGoal.LeftFoot, 1.0f);
+            _animator.SetIKRotationWeight(AvatarIKGoal.RightFoot, 1.0f);
+
 
             // Update the knee positions
             _animator.SetIKHintPosition(AvatarIKHint.LeftKnee, _knees[0]);

@@ -285,6 +285,7 @@ MonoBehaviour:
   bpm: 118
   _frequency: 1.2
   audioSource: {fileID: 3134746371188578690}
+  metronome: 0
 --- !u!1 &8049156680660837470
 GameObject:
   m_ObjectHideFlags: 0
