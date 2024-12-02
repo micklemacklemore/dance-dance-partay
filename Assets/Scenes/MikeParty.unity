@@ -945,6 +945,18 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 2480083971469642215, guid: 1fe2a785bc716dc4aaf69ad8fc2a20c3,
+        type: 3}
+      propertyPath: _dancers.Array.data[0]
+      value: 
+      objectReference: {fileID: 8049156680580577138, guid: 9d1db44ce2685d74890dba3ebefa3e21,
+        type: 3}
+    - target: {fileID: 2480083971469642215, guid: 1fe2a785bc716dc4aaf69ad8fc2a20c3,
+        type: 3}
+      propertyPath: _dancers.Array.data[1]
+      value: 
+      objectReference: {fileID: 1018131160324000, guid: 198046d46d62c8546acc0e2e0bf4f37c,
+        type: 3}
     - target: {fileID: 2480083971784333622, guid: 1fe2a785bc716dc4aaf69ad8fc2a20c3,
         type: 3}
       propertyPath: m_Value
@@ -1023,6 +1035,26 @@ PrefabInstance:
         type: 3}
       propertyPath: m_IsActive
       value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8188045956811606023, guid: 72ab01fabc2aa9046862851ae2a71dac,
+        type: 3}
+      propertyPath: m_ClearFlags
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 8188045956811606023, guid: 72ab01fabc2aa9046862851ae2a71dac,
+        type: 3}
+      propertyPath: m_BackGroundColor.b
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8188045956811606023, guid: 72ab01fabc2aa9046862851ae2a71dac,
+        type: 3}
+      propertyPath: m_BackGroundColor.g
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8188045956811606023, guid: 72ab01fabc2aa9046862851ae2a71dac,
+        type: 3}
+      propertyPath: m_BackGroundColor.r
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 72ab01fabc2aa9046862851ae2a71dac, type: 3}

@@ -10,7 +10,7 @@ namespace Puppet
 {
     public class DancerShuffle : DancerBase
     {
-        [SerializeField] private float bpm = 118f;
+        [SerializeField] private float bpm = 100f;
         private float beatInterval; // Duration of one beat in seconds
         private float lastBeatTime = 0.0f; // Time of the last detected beat
         private int beatCounter = 0; // Tracks the beat count
@@ -18,6 +18,8 @@ namespace Puppet
 
         [SerializeField] public float _frequency = 1.2f;
         [SerializeField] private AudioSource audioSource = null;
+
+        [SerializeField] private bool metronome = false; 
 
         // Body movement variables
         private Vector3 _bodyPosition;
@@ -58,7 +60,8 @@ namespace Puppet
             _feet[0] = origin - footOffset;
             _feet[1] = origin + footOffset;
 
-            Vector3 kneeOffset = transform.forward * 0.4f;
+            Vector3 kneeOffset = transform.forward * 0.5f;
+            kneeOffset += transform.up * 0.5f; 
             _knees[0] = origin - footOffset + kneeOffset;
             _knees[1] = origin + footOffset + kneeOffset;
 
@@ -73,10 +76,10 @@ namespace Puppet
 
             // Update position and rotation
             UpdateBodyPosition();
-            //UpdateBodyRotation();
+            UpdateBodyRotation();
 
             // Play audio on beat
-            PlayMetronomeOnBeat();
+            if (metronome) PlayMetronomeOnBeat();
         }
 
         /// <summary>
@@ -91,7 +94,7 @@ namespace Puppet
                 lastBeatTime += beatInterval; // Update to the current beat
                 newCycle = true; // A new cycle begins
                 beatCounter++; // Increment beat counter
-                Debug.Log($"New Cycle: {beatCounter}");
+                // Debug.Log($"New Cycle: {beatCounter}");
             }
             else
             {
@@ -139,6 +142,18 @@ namespace Puppet
 
             // Smoothly interpolate the current rotation towards the target rotation
             _bodyRotation = Quaternion.Slerp(_bodyRotation, _targetRotation, Time.deltaTime * _transitionSpeed);
+
+            // re-update foot and knee positions!!!
+            Vector3 origin = transform.position;
+            Vector3 footOffset = _bodyRotation * transform.right * 0.2f;
+
+            _feet[0] = origin - footOffset;
+            _feet[1] = origin + footOffset;
+
+            Vector3 kneeOffset = _bodyRotation * transform.forward * 0.5f;
+            kneeOffset += _bodyRotation * transform.up * 0.5f; 
+            _knees[0] = origin - footOffset + kneeOffset;
+            _knees[1] = origin + footOffset + kneeOffset;
         }
 
         /// <summary>
@@ -156,8 +171,34 @@ namespace Puppet
             }
         }
 
+        private Vector3 GetHandPosition(int index) {
+            Vector3 handPosition = new Vector3(0.3f, 0.7f, 0.3f);
+
+            var isLeft = index == 0; 
+            var pos = handPosition; 
+            if (isLeft) pos.x *= -1; 
+
+            pos = _animator.bodyRotation * pos + _animator.bodyPosition;
+
+            return pos; 
+        }
+
+        void OnDrawGizmos() {
+            Gizmos.color = Color.blue; 
+            Gizmos.DrawSphere(_knees[0], 0.1f); 
+            Gizmos.DrawSphere(_knees[1], 0.1f); 
+
+            Gizmos.color = Color.green; 
+            Gizmos.DrawSphere(GetHandPosition(0), 0.1f); 
+            Gizmos.DrawSphere(GetHandPosition(1), 0.1f); 
+        }
+
         void OnAnimatorIK(int layerIndex)
         {
+            // Update the body position and rotation
+            _animator.bodyPosition = _bodyPosition;
+            _animator.bodyRotation = _bodyRotation;
+
             // Update the feet positions
             _animator.SetIKPosition(AvatarIKGoal.LeftFoot, _feet[0]);
             _animator.SetIKPosition(AvatarIKGoal.RightFoot, _feet[1]);
@@ -170,9 +211,12 @@ namespace Puppet
             _animator.SetIKHintPositionWeight(AvatarIKHint.LeftKnee, 1);
             _animator.SetIKHintPositionWeight(AvatarIKHint.RightKnee, 1);
 
-            // Update the body position and rotation
-            _animator.bodyPosition = _bodyPosition;
-            _animator.bodyRotation = _bodyRotation;
+            _animator.SetIKPosition(AvatarIKGoal.LeftHand, GetHandPosition(0));
+            _animator.SetIKPosition(AvatarIKGoal.RightHand, GetHandPosition(1));
+            _animator.SetIKPositionWeight(AvatarIKGoal.LeftHand, 1);
+            _animator.SetIKPositionWeight(AvatarIKGoal.RightHand, 1);
+            _animator.SetIKHintPositionWeight(AvatarIKHint.LeftElbow, 0); 
+            _animator.SetIKHintPositionWeight(AvatarIKHint.RightElbow, 0); 
         }
     }
 }

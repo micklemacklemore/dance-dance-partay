@@ -9,14 +9,12 @@ public class FirstPersonCamera : MonoBehaviour
     public float mouseSensitivity = 2.0f;
     private float cameraVerticalRotation = 0.0f;  
 
-    bool lockedCursor = true; 
-
-    private bool isFocused = true; // To track application focus state
+    private bool isFocused = false; // To track application focus state
 
     // Start is called before the first frame update
     void Start()
     {
-        LockCursor(); 
+        //LockCursor(); 
     }
 
     private void LockCursor()
@@ -36,7 +34,7 @@ public class FirstPersonCamera : MonoBehaviour
     {
 
 
-        if (Input.GetKeyDown(KeyCode.Escape)) {
+        if (Input.GetKeyDown(KeyCode.Space)) {
             isFocused = !isFocused;
 
             if (isFocused) {
