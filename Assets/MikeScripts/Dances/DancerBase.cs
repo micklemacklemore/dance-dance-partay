@@ -26,11 +26,19 @@ public struct SetFloat {
 
 public class DancerBase : MonoBehaviour
 {
-    
+    protected BeatManager beatManager; 
+
     public Dictionary<string, SetFloat> propFloats = new Dictionary<string, SetFloat>(); 
 
     public virtual void initializeProperties() {
         // Override this to fill propFloats, propInts, etc.
+        // Find an object with the BeatManager component in the scene
+        beatManager = FindObjectOfType<BeatManager>();
+
+        if (beatManager == null)
+        {
+            Debug.LogError("No BeatManager found in the scene!");
+        }
     }
 
     public void SetDanceProperty(string name, float value) {

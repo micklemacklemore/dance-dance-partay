@@ -20,10 +20,6 @@ public class GroovySpeaker : MonoBehaviour
         {
             Debug.LogError("No BeatManager found in the scene!");
         }
-        else
-        {
-            Debug.Log("BeatManager found and stored!");
-        }
 
         baseScale = mesh.transform.localScale; 
     }
@@ -31,8 +27,8 @@ public class GroovySpeaker : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        var modulate = Mathf.Abs(Mathf.Sin(Mathf.PI * beatManager.BeatTime)); // will modulate like a bouncing ball
-        modulate *= 0.1f; 
+        var modulate = Mathf.Sin(2 * Mathf.PI * beatManager.BeatTime); // will modulate like a bouncing ball
+        modulate = Unity.Mathematics.math.remap(-1f, 1f, 0f, 0.1f, modulate); 
         mesh.transform.localScale = baseScale + new Vector3(modulate, modulate, modulate); 
     }
 }

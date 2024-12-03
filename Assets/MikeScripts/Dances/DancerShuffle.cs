@@ -9,12 +9,6 @@ namespace Puppet
 {
     public class DancerShuffle : DancerBase
     {
-        [SerializeField] private float bpm = 118f;
-        private float beatInterval; // Duration of one beat in seconds
-        private float lastBeatTime = 0.0f; // Time of the last detected beat
-        private int beatCounter = 0; // Tracks the beat count
-        private bool newCycle = false; // Tracks whether a new cycle has started
-
         [SerializeField] public float _frequency = 1.2f;
         [SerializeField] private AudioSource audioSource = null;
 
@@ -53,11 +47,6 @@ namespace Puppet
         // spine variables
         private Quaternion _spine; 
 
-
-        private float _beatTime; 
-
-        private bool _resetBeat = false; 
-
         XXHash _hash;
         Vector2 _noise;
 
@@ -66,20 +55,11 @@ namespace Puppet
         public override void initializeProperties()
         {
             base.initializeProperties();
-            this.propFloats["BPM"] = new SetFloat((x) => bpm = x, 1.0f, 200.0f, bpm); 
             this.propFloats["Max Jumping Height"] = new SetFloat((x) => _maxJumpingHeight = x, 0.2f, 5.0f, _maxJumpingHeight);
-        }
-
-        public override void BeatTrigger() {
-            // override this to reset the beat / step
-            _resetBeat = true; 
         }
 
         void Start()
         {
-            // Initialize beat interval
-            beatInterval = 60.0f / bpm;
-
             _animator = GetComponent<Animator>();
             _bodyPosition = transform.position;
             _bodyRotation = transform.rotation;
@@ -104,27 +84,8 @@ namespace Puppet
             initializeProperties();
         }
 
-        public void ResetBeatTime()
-        {
-            lastBeatTime = Time.time;
-            _beatTime = 0.0f;
-        }
-
         void Update()
         {
-            beatInterval = 60.0f / bpm;
-            // Detect new beat cycles based on BPM
-
-            if (_resetBeat) {
-                ResetBeatTime(); 
-                _resetBeat = false; 
-            }
-
-            DetectBeatCycle();
-
-            // Calculate time progress in the beat cycle (0 to 1)
-            _beatTime = (Time.time - lastBeatTime) / beatInterval;
-
             if (_currentSeed != _seed) {
                 _currentSeed = _seed; 
                 UnityEngine.Random.InitState(_currentSeed); 
@@ -146,7 +107,7 @@ namespace Puppet
 
         private void UpdateHeadPosition()
         {
-            var modulate = Mathf.Sin(2 * Mathf.PI * _beatTime + 0.5f);
+            var modulate = Mathf.Sin(2 * Mathf.PI * beatManager.BeatTime + 0.5f);
             var pos = _headLookAtPos; 
             pos.y += modulate * 0.5f;
             
@@ -156,7 +117,7 @@ namespace Puppet
 
         private void UpdateSpine()
         {
-            var modulate = Mathf.Sin(2 * Mathf.PI * _beatTime); // -1 to 1 modulation 
+            var modulate = Mathf.Sin(2 * Mathf.PI * beatManager.BeatTime); // -1 to 1 modulation 
             //_spine = Quaternion.AngleAxis(spinebend, Vector3.right);
             _spine = Quaternion.AngleAxis(modulate * 20f, Vector3.forward);
         }
@@ -170,7 +131,7 @@ namespace Puppet
                 var pos = handPosition; 
                 if (index == 0) pos.x *= -1; 
 
-                if (newCycle)
+                if (beatManager.NewCycle)
                 {
                     // Generate a new target offset for the next jump height
                     _armPosTargetOffset = (0.5f * UnityEngine.Random.Range(-1.0f, 1.0f) + 1.0f);
@@ -178,7 +139,7 @@ namespace Puppet
 
                 //_bodyPosOffset = Mathf.Lerp(_armPosOffset, _armPosTargetOffset, Time.deltaTime * _transitionSpeed);
 
-                var modulate = Mathf.Sin(2 * Mathf.PI * _beatTime + 1.0f);
+                var modulate = Mathf.Sin(2 * Mathf.PI * beatManager.BeatTime + 1.0f);
  
                 pos.y += modulate * 0.2f;
                 pos.z += Unity.Mathematics.math.remap(-1, 1, 0.6f, 0.0f, modulate); 
@@ -187,30 +148,9 @@ namespace Puppet
             }
         }
 
-
-        /// <summary>
-        /// Detects whether a new cycle has started based on the BPM.
-        /// </summary>
-        private void DetectBeatCycle()
-        {
-            float currentTime = Time.time;
-
-            if (currentTime - lastBeatTime >= beatInterval)
-            {
-                lastBeatTime += beatInterval; // Update to the current beat
-                newCycle = true; // A new cycle begins
-                beatCounter++; // Increment beat counter
-                // Debug.Log($"New Cycle: {beatCounter}");
-            }
-            else
-            {
-                newCycle = false; // No new cycle
-            }
-        }
-
         private void UpdateBodyPosition()
         {
-            if (newCycle)
+            if (beatManager.NewCycle)
             {
                 // Generate a new target offset for the next jump height
                 _bodyPosTargetOffset = (UnityEngine.Random.Range(0.5f, 1.5f)) * _maxJumpingHeight;
@@ -220,7 +160,7 @@ namespace Puppet
             _bodyPosOffset = Mathf.Lerp(_bodyPosOffset, _bodyPosTargetOffset, Time.deltaTime * _transitionSpeed);
             
             // Sine wave modulation based on the beat cycle
-            var modulate = Mathf.Sin(2 * Mathf.PI * _beatTime);
+            var modulate = Mathf.Sin(2 * Mathf.PI * beatManager.BeatTime);
 
             // Calculate the new Y position based on sine wave modulation
             float newY = modulate * _maxJumpingHeight + _bodyPosOffset;
@@ -234,7 +174,7 @@ namespace Puppet
         /// </summary>
         private void UpdateBodyRotation()
         {
-            if (newCycle)
+            if (beatManager.NewCycle)
             {
                 // Generate a new random target rotation on each cycle
                 float randomYaw = UnityEngine.Random.Range(-360.0f, 360.0f); // Random yaw rotation
@@ -264,11 +204,11 @@ namespace Puppet
         /// </summary>
         private void PlayMetronomeOnBeat()
         {
-            if (newCycle && audioSource != null && audioSource.clip != null)
+            if (beatManager.NewCycle && audioSource != null && audioSource.clip != null)
             {
                 audioSource.Play(); // Play the metronome sound
             }
-            else if (newCycle && (audioSource == null || audioSource.clip == null))
+            else if (beatManager.NewCycle && (audioSource == null || audioSource.clip == null))
             {
                 Debug.LogWarning("AudioSource or AudioClip is not assigned.");
             }
