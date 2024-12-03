@@ -1,10 +1,8 @@
 using UnityEngine;
-using Unity.Mathematics;
 using Klak.Math;
 using UnityEngine.Audio;
 using Noise = Klak.Math.NoiseHelper;
 using math = Unity.Mathematics;
-using System;
 
 namespace Puppet
 {
@@ -21,20 +19,41 @@ namespace Puppet
 
         [SerializeField] private bool metronome = false; 
 
-        // Body movement variables
-        private Vector3 _bodyPosition;
-        private Quaternion _bodyRotation;
-        private Quaternion _targetRotation;
-        private float _maxJumpingHeight = 0.5f;
-        private float _offset = 0.0f;
-        private float _targetOffset = 0.0f;
+        [SerializeField] private int _seed = 123; 
+        private int _currentSeed = 123; 
+
         private float _transitionSpeed = 5.0f;
 
+        // body rotation vairables
+        private Quaternion _bodyRotation;
+        private Quaternion _targetRotation;
+
+        // body position variables
+        private Vector3 _bodyPosition;
+        private float _maxJumpingHeight = 0.5f;
+        private float _bodyPosOffset = 0.0f;
+        private float _bodyPosTargetOffset = 0.5f;
+
+        // arm position variables
+
+        private float _armPosOffset = 0.0f; 
+        private float _armPosTargetOffset = 0.5f;
         private Transform _currentTransform = null; 
+        private Vector3[] _hands = new Vector3[2];
 
         // Foot and knee positions
         private Vector3[] _feet = new Vector3[2];
         private Vector3[] _knees = new Vector3[2];
+
+        // head look position
+        
+        [SerializeField] private Vector3 _headLookAtPos; 
+        private Vector3 _headPos; 
+
+        private float _beatTime; 
+
+        XXHash _hash;
+        Vector2 _noise;
 
         Animator _animator;
 
@@ -69,6 +88,8 @@ namespace Puppet
 
             _currentTransform = transform; 
 
+            _headLookAtPos = new Vector3(0, 0.4f, 0.5f); 
+
             initializeProperties();
         }
 
@@ -78,9 +99,20 @@ namespace Puppet
             // Detect new beat cycles based on BPM
             DetectBeatCycle();
 
+            // Calculate time progress in the beat cycle (0 to 1)
+            _beatTime = (Time.time - lastBeatTime) / beatInterval;
+
+            if (_currentSeed != _seed) {
+                _currentSeed = _seed; 
+                UnityEngine.Random.InitState(_currentSeed); 
+            }
+
             // Update position and rotation
             UpdateBodyPosition();
             UpdateBodyRotation();
+            UpdateArmPosition(); 
+            UpdateSpine(); 
+            UpdateHeadPosition(); 
 
             // Play audio on beat
             if (metronome) PlayMetronomeOnBeat();
@@ -88,6 +120,48 @@ namespace Puppet
             DrawRay(); 
             _currentTransform = transform; 
         }
+
+        private void UpdateHeadPosition()
+        {
+            var modulate = Mathf.Sin(2 * Mathf.PI * _beatTime + 0.5f);
+            var pos = _headLookAtPos; 
+            pos.y += modulate * 0.5f;
+            
+            _headPos = _bodyRotation * pos + _bodyPosition;
+        }
+
+
+        private void UpdateSpine()
+        {
+            return ; 
+        }
+
+
+        private void UpdateArmPosition()
+        {
+            // index = 0 (left) else index = 1 (right)
+            for (int index = 0; index < 2; ++index) {
+                Vector3 handPosition = new Vector3(0.3f, 0.7f, 0.3f);
+                var pos = handPosition; 
+                if (index == 0) pos.x *= -1; 
+
+                if (newCycle)
+                {
+                    // Generate a new target offset for the next jump height
+                    _armPosTargetOffset = (0.5f * Random.Range(-1.0f, 1.0f) + 1.0f);
+                }
+
+                //_bodyPosOffset = Mathf.Lerp(_armPosOffset, _armPosTargetOffset, Time.deltaTime * _transitionSpeed);
+
+                var modulate = Mathf.Sin(2 * Mathf.PI * _beatTime + 1.0f);
+
+                float newY = modulate * 0.25f;  
+                pos.y += newY;
+                _hands[index] = _bodyRotation * pos + _bodyPosition;
+
+            }
+        }
+
 
         /// <summary>
         /// Detects whether a new cycle has started based on the BPM.
@@ -111,23 +185,20 @@ namespace Puppet
 
         private void UpdateBodyPosition()
         {
-            // Calculate time progress in the beat cycle (0 to 1)
-            float beatTime = (Time.time - lastBeatTime) / beatInterval;
-
-            // Sine wave modulation based on the beat cycle
-            float modulate = Mathf.Sin(2 * Mathf.PI * beatTime);
-
             if (newCycle)
             {
                 // Generate a new target offset for the next jump height
-                _targetOffset = (0.5f * UnityEngine.Random.Range(-1.0f, 1.0f) + 1.0f) * _maxJumpingHeight;
+                _bodyPosTargetOffset = (UnityEngine.Random.Range(0.5f, 1.5f)) * _maxJumpingHeight;
             }
 
             // Smoothly transition _offset towards _targetOffset
-            _offset = Mathf.Lerp(_offset, _targetOffset, Time.deltaTime * _transitionSpeed);
+            _bodyPosOffset = Mathf.Lerp(_bodyPosOffset, _bodyPosTargetOffset, Time.deltaTime * _transitionSpeed);
+            
+            // Sine wave modulation based on the beat cycle
+            var modulate = Mathf.Sin(2 * Mathf.PI * _beatTime);
 
             // Calculate the new Y position based on sine wave modulation
-            float newY = modulate * _maxJumpingHeight + _offset;
+            float newY = modulate * _maxJumpingHeight + _bodyPosOffset;
 
             // Apply the new Y position
             _bodyPosition.y = transform.position.y + 0.5f + newY;
@@ -178,32 +249,22 @@ namespace Puppet
             }
         }
 
-        private Vector3 GetHandPosition(int index) {
-            Vector3 handPosition = new Vector3(0.3f, 0.7f, 0.3f);
-
-            var isLeft = index == 0; 
-            var pos = handPosition; 
-            if (isLeft) pos.x *= -1; 
-
-            if (_animator != null) {
-                pos = _animator.bodyRotation * pos + _animator.bodyPosition;
-            }
-
-            return pos; 
-        }
-
         void OnDrawGizmos() {
             Gizmos.color = Color.blue; 
             Gizmos.DrawSphere(_knees[0], 0.1f); 
             Gizmos.DrawSphere(_knees[1], 0.1f); 
 
             Gizmos.color = Color.green; 
-            Gizmos.DrawSphere(GetHandPosition(0), 0.1f); 
-            Gizmos.DrawSphere(GetHandPosition(1), 0.1f); 
+            Gizmos.DrawSphere(_hands[0], 0.1f); 
+            Gizmos.DrawSphere(_hands[1], 0.1f); 
+
+            Gizmos.color = Color.red; 
+            Gizmos.DrawSphere(_headPos, 0.1f); 
         }
 
 
         void DrawRay() {
+            return; 
             // Define the origin of the ray (e.g., from the object's position)
             Vector3 origin = _feet[0];
 
@@ -236,11 +297,11 @@ namespace Puppet
             _animator.SetIKPositionWeight(AvatarIKGoal.LeftFoot, 1);
             _animator.SetIKPositionWeight(AvatarIKGoal.RightFoot, 1);
 
+            // foot rotation is based on body rotation
             _animator.SetIKRotation(AvatarIKGoal.LeftFoot, _bodyRotation);
             _animator.SetIKRotation(AvatarIKGoal.RightFoot, _bodyRotation);
             _animator.SetIKRotationWeight(AvatarIKGoal.LeftFoot, 1.0f);
             _animator.SetIKRotationWeight(AvatarIKGoal.RightFoot, 1.0f);
-
 
             // Update the knee positions
             _animator.SetIKHintPosition(AvatarIKHint.LeftKnee, _knees[0]);
@@ -248,12 +309,15 @@ namespace Puppet
             _animator.SetIKHintPositionWeight(AvatarIKHint.LeftKnee, 1);
             _animator.SetIKHintPositionWeight(AvatarIKHint.RightKnee, 1);
 
-            _animator.SetIKPosition(AvatarIKGoal.LeftHand, GetHandPosition(0));
-            _animator.SetIKPosition(AvatarIKGoal.RightHand, GetHandPosition(1));
+            // update hand position
+            _animator.SetIKPosition(AvatarIKGoal.LeftHand, _hands[0]);
+            _animator.SetIKPosition(AvatarIKGoal.RightHand, _hands[1]);
             _animator.SetIKPositionWeight(AvatarIKGoal.LeftHand, 1);
             _animator.SetIKPositionWeight(AvatarIKGoal.RightHand, 1);
-            _animator.SetIKHintPositionWeight(AvatarIKHint.LeftElbow, 0); 
-            _animator.SetIKHintPositionWeight(AvatarIKHint.RightElbow, 0); 
+
+            // update head position
+            _animator.SetLookAtPosition(_headPos); 
+            _animator.SetLookAtWeight(1.0f); 
         }
     }
 }
