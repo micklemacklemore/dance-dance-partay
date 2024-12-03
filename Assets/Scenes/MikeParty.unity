@@ -701,6 +701,11 @@ PrefabInstance:
       propertyPath: _seed
       value: 20
       objectReference: {fileID: 0}
+    - target: {fileID: 1843547862038871528, guid: 6dd197cb83f1f2b4580ccdf2ad5f5a40,
+        type: 3}
+      propertyPath: audioSource
+      value: 
+      objectReference: {fileID: 0}
     - target: {fileID: 2234486874883275427, guid: 6dd197cb83f1f2b4580ccdf2ad5f5a40,
         type: 3}
       propertyPath: m_RootOrder
@@ -759,7 +764,12 @@ PrefabInstance:
     - target: {fileID: 2234486874883696259, guid: 6dd197cb83f1f2b4580ccdf2ad5f5a40,
         type: 3}
       propertyPath: m_Name
-      value: dancerShuffle2
+      value: DJMan
+      objectReference: {fileID: 0}
+    - target: {fileID: 5467340986208738367, guid: 6dd197cb83f1f2b4580ccdf2ad5f5a40,
+        type: 3}
+      propertyPath: m_PlayOnAwake
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 6dd197cb83f1f2b4580ccdf2ad5f5a40, type: 3}

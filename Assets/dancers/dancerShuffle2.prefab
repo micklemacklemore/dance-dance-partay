@@ -179,6 +179,8 @@ MonoBehaviour:
   _frequency: 1.2
   audioSource: {fileID: 5467340986208738367}
   metronome: 0
+  _seed: 123
+  _headLookAtPos: {x: 0, y: 0, z: 0}
 --- !u!1 &2234486874883696261
 GameObject:
   m_ObjectHideFlags: 0
@@ -957,7 +959,7 @@ AudioSource:
   serializedVersion: 4
   OutputAudioMixerGroup: {fileID: 0}
   m_audioClip: {fileID: 8300000, guid: 6e202fe5a5f5fd9459ca63af0da5713e, type: 3}
-  m_PlayOnAwake: 1
+  m_PlayOnAwake: 0
   m_Volume: 1
   m_Pitch: 1
   Loop: 0

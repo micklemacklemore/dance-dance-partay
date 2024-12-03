@@ -3,6 +3,7 @@ using Klak.Math;
 using UnityEngine.Audio;
 using Noise = Klak.Math.NoiseHelper;
 using math = Unity.Mathematics;
+using Unity.Mathematics;
 
 namespace Puppet
 {
@@ -46,9 +47,12 @@ namespace Puppet
         private Vector3[] _knees = new Vector3[2];
 
         // head look position
-        
         [SerializeField] private Vector3 _headLookAtPos; 
-        private Vector3 _headPos; 
+        private Vector3 _headPos;
+
+        // spine variables
+        private Quaternion _spine; 
+
 
         private float _beatTime; 
 
@@ -110,8 +114,8 @@ namespace Puppet
             // Update position and rotation
             UpdateBodyPosition();
             UpdateBodyRotation();
-            UpdateArmPosition(); 
             UpdateSpine(); 
+            UpdateArmPosition(); 
             UpdateHeadPosition(); 
 
             // Play audio on beat
@@ -133,7 +137,9 @@ namespace Puppet
 
         private void UpdateSpine()
         {
-            return ; 
+            var modulate = Mathf.Sin(2 * Mathf.PI * _beatTime); // -1 to 1 modulation 
+            //_spine = Quaternion.AngleAxis(spinebend, Vector3.right);
+            _spine = Quaternion.AngleAxis(modulate * 20f, Vector3.forward);
         }
 
 
@@ -141,22 +147,22 @@ namespace Puppet
         {
             // index = 0 (left) else index = 1 (right)
             for (int index = 0; index < 2; ++index) {
-                Vector3 handPosition = new Vector3(0.3f, 0.7f, 0.3f);
+                Vector3 handPosition = new Vector3(0.30f, 0.65f, 0.10f);
                 var pos = handPosition; 
                 if (index == 0) pos.x *= -1; 
 
                 if (newCycle)
                 {
                     // Generate a new target offset for the next jump height
-                    _armPosTargetOffset = (0.5f * Random.Range(-1.0f, 1.0f) + 1.0f);
+                    _armPosTargetOffset = (0.5f * UnityEngine.Random.Range(-1.0f, 1.0f) + 1.0f);
                 }
 
                 //_bodyPosOffset = Mathf.Lerp(_armPosOffset, _armPosTargetOffset, Time.deltaTime * _transitionSpeed);
 
                 var modulate = Mathf.Sin(2 * Mathf.PI * _beatTime + 1.0f);
-
-                float newY = modulate * 0.25f;  
-                pos.y += newY;
+ 
+                pos.y += modulate * 0.2f;
+                pos.z += Unity.Mathematics.math.remap(-1, 1, 0.6f, 0.0f, modulate); 
                 _hands[index] = _bodyRotation * pos + _bodyPosition;
 
             }
@@ -314,6 +320,15 @@ namespace Puppet
             _animator.SetIKPosition(AvatarIKGoal.RightHand, _hands[1]);
             _animator.SetIKPositionWeight(AvatarIKGoal.LeftHand, 1);
             _animator.SetIKPositionWeight(AvatarIKGoal.RightHand, 1);
+
+            // update hand rotation
+            _animator.SetBoneLocalRotation(HumanBodyBones.LeftHand, Quaternion.AngleAxis(-60, Vector3.up)); 
+            _animator.SetBoneLocalRotation(HumanBodyBones.RightHand, Quaternion.AngleAxis(-60, Vector3.up)); 
+
+            // update spine
+            _animator.SetBoneLocalRotation(HumanBodyBones.Spine, _spine);
+            _animator.SetBoneLocalRotation(HumanBodyBones.Chest, _spine);
+            _animator.SetBoneLocalRotation(HumanBodyBones.UpperChest, _spine);
 
             // update head position
             _animator.SetLookAtPosition(_headPos); 
