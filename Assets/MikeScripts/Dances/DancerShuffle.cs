@@ -9,7 +9,7 @@ namespace Puppet
 {
     public class DancerShuffle : DancerBase
     {
-        [SerializeField] private float bpm = 100f;
+        [SerializeField] private float bpm = 118f;
         private float beatInterval; // Duration of one beat in seconds
         private float lastBeatTime = 0.0f; // Time of the last detected beat
         private int beatCounter = 0; // Tracks the beat count
@@ -56,6 +56,8 @@ namespace Puppet
 
         private float _beatTime; 
 
+        private bool _resetBeat = false; 
+
         XXHash _hash;
         Vector2 _noise;
 
@@ -66,6 +68,11 @@ namespace Puppet
             base.initializeProperties();
             this.propFloats["BPM"] = new SetFloat((x) => bpm = x, 1.0f, 200.0f, bpm); 
             this.propFloats["Max Jumping Height"] = new SetFloat((x) => _maxJumpingHeight = x, 0.2f, 5.0f, _maxJumpingHeight);
+        }
+
+        public override void BeatTrigger() {
+            // override this to reset the beat / step
+            _resetBeat = true; 
         }
 
         void Start()
@@ -97,10 +104,22 @@ namespace Puppet
             initializeProperties();
         }
 
+        public void ResetBeatTime()
+        {
+            lastBeatTime = Time.time;
+            _beatTime = 0.0f;
+        }
+
         void Update()
         {
             beatInterval = 60.0f / bpm;
             // Detect new beat cycles based on BPM
+
+            if (_resetBeat) {
+                ResetBeatTime(); 
+                _resetBeat = false; 
+            }
+
             DetectBeatCycle();
 
             // Calculate time progress in the beat cycle (0 to 1)
@@ -121,7 +140,7 @@ namespace Puppet
             // Play audio on beat
             if (metronome) PlayMetronomeOnBeat();
 
-            DrawRay(); 
+            // DrawRay(); 
             _currentTransform = transform; 
         }
 
@@ -270,7 +289,6 @@ namespace Puppet
 
 
         void DrawRay() {
-            return; 
             // Define the origin of the ray (e.g., from the object's position)
             Vector3 origin = _feet[0];
 

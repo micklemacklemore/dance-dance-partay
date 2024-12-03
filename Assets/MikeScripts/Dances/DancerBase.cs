@@ -47,4 +47,9 @@ public class DancerBase : MonoBehaviour
     public void SetDanceProperty(string name, int value) {
         Debug.LogWarning($"Property '{name}' not found.");
     }
+
+    public virtual void BeatTrigger() {
+        // override this to reset the beat / step
+        Debug.Log("Trigger!!!"); 
+    }
 }

@@ -100,6 +100,11 @@ public class DancePartySpawner : MonoBehaviour
         SpawnDancer(newIndex);
     }
 
+    public void BeatTrigger() {
+        var dancer = currentDancer.GetComponentInChildren<DancerBase>(); 
+        dancer.BeatTrigger(); 
+    }
+
     public void SetDanceProperty(string property, float value) {
         var dancer = currentDancer.GetComponentInChildren<DancerBase>(); 
         dancer.SetDanceProperty(property, value); 
