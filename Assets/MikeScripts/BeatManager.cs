@@ -23,6 +23,16 @@ public class BeatManager : MonoBehaviour
         get { return _beatTime; }
     }
 
+    public float BeatTimeSmoothStep
+    {
+        get { return Mathf.SmoothStep(0.0f, 1.0f, _beatTime); }
+    }
+
+    public float TimeToNextBeat
+    {
+        get { return _beatInterval - (Time.time - _lastBeatTime); }
+    }
+
     // Start is called before the first frame update
     void Start()
     {

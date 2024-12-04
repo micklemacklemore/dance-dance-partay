@@ -164,7 +164,7 @@ namespace Puppet
             base.initializeProperties();
             
             this.propFloats["Foot Distance"] = new SetFloat((x) => this.footDistance = x, 0.1f, 1.0f, footDistance);
-            this.propFloats["Step Frequency"] = new SetFloat((x) => this.stepFrequency = x, 0.1f, 5.0f, stepFrequency);
+            // this.propFloats["Step Frequency"] = new SetFloat((x) => this.stepFrequency = x, 0.1f, 5.0f, stepFrequency);
             this.propFloats["Step Height"] = new SetFloat((x) => this.stepHeight = x, 0.05f, 1.0f, stepHeight);
             this.propFloats["Step Angle"] = new SetFloat((x) => this.stepAngle = x, 0f, 360f, stepAngle);
             this.propFloats["Max Distance"] = new SetFloat((x) => this.maxDistance = x, 0.1f, 5.0f, maxDistance);
@@ -263,12 +263,15 @@ namespace Puppet
                 var pos = Vector3.Lerp(LeftFootPosition, RightFootPosition, right);
 
                 // Vertical move: Two wave while one step. Add noise.
-                var y = _hipHeight + Mathf.Cos(StepTime * Mathf.PI * 4) * _stepHeight / 2;
+                var y = _hipHeight + Mathf.Cos(beatManager.BeatTime * Mathf.PI * 2) * _stepHeight / 2;
                 y += noise.snoise(_noise) * _hipPositionNoise;
 
                 return SetY(pos, y);
             }
         }
+
+        private Quaternion _lastBodyRotNoise = Quaternion.identity; 
+        private Quaternion _targetBodyRotNoise = Quaternion.identity; 
 
         // Body (hip) rotation
         Quaternion BodyRotation {
@@ -282,8 +285,13 @@ namespace Puppet
                 // Horizontal rotation from the right vector.
                 rot *= Quaternion.LookRotation(right.normalized);
 
+                if (beatManager.NewCycle) {
+                    _lastBodyRotNoise = _targetBodyRotNoise; 
+                    _targetBodyRotNoise = Noise.Rotation(_noise, math.radians(_hipRotationNoise), 1);
+                }
+
                 // Add noise.
-                return rot * Noise.Rotation(_noise, math.radians(_hipRotationNoise), 1);
+                return rot * Quaternion.Slerp(_lastBodyRotNoise, _targetBodyRotNoise, beatManager.BeatTimeSmoothStep); 
             }
         }
 
@@ -291,12 +299,27 @@ namespace Puppet
 
         #region Local properties and functions for upper body animation
 
+        private Quaternion _currentSpineNoise = Quaternion.identity; 
+        private Quaternion _targetSpineNoise = Quaternion.identity; 
+        private Quaternion _lastSpineNoise = Quaternion.identity; 
+
         // Spine (spine/chest/upper chest) rotation
         Quaternion SpineRotation { get {
             var rot = Quaternion.AngleAxis(_spineBend, Vector3.forward);
-            rot *= Noise.Rotation(_noise, math.radians(_spineRotationNoise), 2);
+
+            if (beatManager.NewCycle) {
+                _lastSpineNoise = _targetSpineNoise; 
+                _targetSpineNoise = Noise.Rotation(_noise, math.radians(_spineRotationNoise), 2);
+            }
+
+            _currentSpineNoise = Quaternion.Slerp(_lastSpineNoise, _targetSpineNoise, beatManager.BeatTimeSmoothStep); 
+            rot *= _currentSpineNoise; 
             return rot;
         } }
+
+        private Vector3 _currentHandNoise = Vector3.zero; 
+        private Vector3 _targetHandNoise = Vector3.zero;
+        private Vector3 _lastHandNoise = Vector3.zero; 
 
         // Calculates the hand position
         Vector3 GetHandPosition(int index)
@@ -310,8 +333,16 @@ namespace Puppet
             // Apply the body (hip) transform.
             pos = _animator.bodyRotation * pos + _animator.bodyPosition;
 
+            if (beatManager.NewCycle && isLeft) {
+                _lastHandNoise = _targetHandNoise; 
+                _targetHandNoise = Vector3.Scale(Noise.Float3(_noise, (uint)(4 + index)), _handPositionNoise);
+            }
+
+            var vel = Vector3.zero; 
+
             // Add noise.
-            pos += Vector3.Scale(Noise.Float3(_noise, (uint)(4 + index)), _handPositionNoise);
+            _currentHandNoise = Vector3.Lerp(_lastHandNoise, _targetHandNoise, beatManager.BeatTimeSmoothStep); 
+            pos += _currentHandNoise; 
 
             // Clamping in the local space of the chest bone.
             pos = _chestMatrixInv * new Vector4(pos.x, pos.y, pos.z, 1);
@@ -325,10 +356,17 @@ namespace Puppet
         Vector3 LeftHandPosition { get { return GetHandPosition(0); } }
         Vector3 RightHandPosition { get { return GetHandPosition(1); } }
 
+        private Vector3 _targetHeadNoise = Vector3.zero;
+        private Vector3 _lastHeadNoise = Vector3.zero; 
+
         // Look at position (for head movement)
         Vector3 LookAtPosition {
             get {
-                var pos = Noise.Float3(_noise, 3) * _headMove;
+                if (beatManager.NewCycle) {
+                    _lastHeadNoise = _targetHeadNoise; 
+                    _targetHeadNoise = Noise.Float3(_noise, 3) * _headMove;
+                }
+                var pos = Vector3.Lerp(_lastHeadNoise, _targetHeadNoise, beatManager.BeatTimeSmoothStep); 
                 pos.z = 2;
                 return _animator.bodyPosition + _animator.bodyRotation * pos;
             }
