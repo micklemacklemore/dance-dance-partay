@@ -33,6 +33,11 @@ public class BeatManager : MonoBehaviour
         get { return _beatInterval - (Time.time - _lastBeatTime); }
     }
 
+    public float BeatCounter 
+    {
+        get { return _beatCounter; }
+    }
+
     // Start is called before the first frame update
     void Start()
     {
