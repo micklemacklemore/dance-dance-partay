@@ -99,7 +99,12 @@ public class DancePartySpawner : MonoBehaviour
 
         // Change the color of the new dancer (optional)
         var render = currentDancer.GetComponentInChildren<Renderer>();
-        render.material.color = new Color(1f, 0f, 0f, 1f);
+
+        float r = Random.Range(0f, 1f); // Random red value
+        float g = Random.Range(0f, 1f); // Random green value
+        float b = Random.Range(0f, 1f); // Random blue value
+
+        render.material.color = new Color(r, g, b, 1f);
 
         // delete old sliders
         for (int i = 1; i < _sliderContainer.transform.childCount; ++i) {
