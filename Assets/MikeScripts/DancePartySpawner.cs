@@ -49,8 +49,30 @@ public class DancePartySpawner : MonoBehaviour
                 sliderLabel.SetText(entry.Key); 
 
                 newSlider.SetActive(true); 
-                newDancer = false; 
             }
+
+            foreach (KeyValuePair<string, SetInt> entry in dancer.propInts) {
+                // Debug.Log(entry.Key); 
+                var newSlider = Instantiate(_slider); 
+                newSlider.transform.SetParent(_sliderContainer.transform); 
+                newSlider.transform.localScale = new Vector3(1f, 1f, 1f); 
+
+                var handler = newSlider.GetComponentInChildren<SliderHandler>(); 
+                handler.propertyName = entry.Key; 
+
+                var slider = newSlider.GetComponentInChildren<Slider>(); 
+                var values = entry.Value; 
+                slider.maxValue = values.max; 
+                slider.minValue = values.min; 
+                slider.wholeNumbers = true; 
+
+                var sliderLabel = newSlider.GetComponentInChildren<TextMeshProUGUI>(); 
+                sliderLabel.SetText(entry.Key); 
+
+                newSlider.SetActive(true); 
+            }
+
+            newDancer = false; 
         }
         // Check if the flag to change dancer is set
         if (changeDancer)
@@ -71,7 +93,7 @@ public class DancePartySpawner : MonoBehaviour
     private void SpawnDancer(int index)
     {
         // Instantiate the selected prefab
-        var pos = new Vector3(0, 0, 0);
+        var pos = new Vector3(90f, 0, 0);
         var rot = Quaternion.identity;
         currentDancer = Instantiate(_dancers[index], pos, rot);
 
@@ -106,6 +128,11 @@ public class DancePartySpawner : MonoBehaviour
     }
 
     public void SetDanceProperty(string property, float value) {
+        var dancer = currentDancer.GetComponentInChildren<DancerBase>(); 
+        dancer.SetDanceProperty(property, value); 
+    }
+
+    public void SetDanceProperty(string property, int value) {
         var dancer = currentDancer.GetComponentInChildren<DancerBase>(); 
         dancer.SetDanceProperty(property, value); 
     }

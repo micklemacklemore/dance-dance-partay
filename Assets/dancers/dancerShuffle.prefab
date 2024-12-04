@@ -180,7 +180,7 @@ SkinnedMeshRenderer:
   m_RenderingLayerMask: 4294967295
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 10302, guid: 0000000000000000f000000000000000, type: 0}
+  - {fileID: 2100000, guid: 7978f57cef54dba43972c05f04de959d, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -282,10 +282,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ae6053e3efa15e84eaea2f7db86d644b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  bpm: 118
   _frequency: 1.2
   audioSource: {fileID: 3134746371188578690}
   metronome: 0
+  _seed: 123
+  _headLookAtPos: {x: 0, y: 0, z: 0}
 --- !u!1 &8049156680660837470
 GameObject:
   m_ObjectHideFlags: 0

@@ -24,11 +24,33 @@ public struct SetFloat {
     }
 }
 
+public struct SetInt {
+    public delegate void SetIntDelegate(int x);  
+    public SetIntDelegate action; 
+    public int min; 
+    public int max; 
+    public int current; 
+
+    public SetInt(SetIntDelegate action, int min, int max, int current) {
+        this.action = action;
+        this.min = min;
+        this.max = max;
+        this.current = Mathf.Clamp(current, min, max);
+    }
+
+    public void SetValue(int x)
+    {
+        current = Mathf.Clamp(x, min, max); // Clamp the value within min and max
+        action?.Invoke(current);           // Invoke the delegate if it's not null
+    }
+}
+
 public class DancerBase : MonoBehaviour
 {
     protected BeatManager beatManager; 
 
     public Dictionary<string, SetFloat> propFloats = new Dictionary<string, SetFloat>(); 
+    public Dictionary<string, SetInt> propInts = new Dictionary<string, SetInt>(); 
 
     public virtual void initializeProperties() {
         // Override this to fill propFloats, propInts, etc.
@@ -53,7 +75,14 @@ public class DancerBase : MonoBehaviour
     }
 
     public void SetDanceProperty(string name, int value) {
-        Debug.LogWarning($"Property '{name}' not found.");
+        if (propInts.TryGetValue(name, out var setint))
+        {
+            setint.action(value); 
+        }
+        else
+        {
+            Debug.LogWarning($"Property '{name}' not found.");
+        }
     }
 
     public virtual void BeatTrigger() {

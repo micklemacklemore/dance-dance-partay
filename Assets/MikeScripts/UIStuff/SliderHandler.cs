@@ -23,6 +23,11 @@ public class SliderHandler : MonoBehaviour
 
     private void OnSliderValueChanged(float value)
     {
+        if (slider.wholeNumbers) {
+            int val = Mathf.RoundToInt(value); 
+            spawner.SetDanceProperty(property, val);
+            return;  
+        }
         spawner.SetDanceProperty(property, value); 
     }
 }

@@ -25,13 +25,11 @@ namespace Puppet
 
         // body position variables
         private Vector3 _bodyPosition;
-        private float _maxJumpingHeight = 0.5f;
+        [SerializeField] private float _maxJumpingHeight = 0.5f;
         private float _bodyPosOffset = 0.0f;
         private float _bodyPosTargetOffset = 0.5f;
 
         // arm position variables
-
-        private float _armPosOffset = 0.0f; 
         private float _armPosTargetOffset = 0.5f;
         private Transform _currentTransform = null; 
         private Vector3[] _hands = new Vector3[2];
@@ -46,15 +44,15 @@ namespace Puppet
 
         // spine variables
         private Quaternion _spine; 
-
-        XXHash _hash;
-        Vector2 _noise;
+        [SerializeField] private int _spineTwistToggle = 0; 
 
         Animator _animator;
 
         public override void initializeProperties()
         {
             base.initializeProperties();
+            this.propInts["Noise Seed"] = new SetInt((x) => _seed = x, 0, 300, _seed); 
+            this.propInts["Spine Twist Toggle"] = new SetInt((x) => _spineTwistToggle = x, 0, 1, _spineTwistToggle); 
             this.propFloats["Max Jumping Height"] = new SetFloat((x) => _maxJumpingHeight = x, 0.2f, 5.0f, _maxJumpingHeight);
         }
 
@@ -118,8 +116,15 @@ namespace Puppet
         private void UpdateSpine()
         {
             var modulate = Mathf.Sin(2 * Mathf.PI * beatManager.BeatTime); // -1 to 1 modulation 
-            //_spine = Quaternion.AngleAxis(spinebend, Vector3.right);
-            _spine = Quaternion.AngleAxis(modulate * 20f, Vector3.forward);
+            if (_spineTwistToggle == 1) {
+                _spine = Quaternion.AngleAxis(modulate * 20f, Vector3.right);
+            }
+            else 
+            {
+                _spine = Quaternion.AngleAxis(modulate * 20f, Vector3.forward);
+            }
+            //
+            
         }
 
 
