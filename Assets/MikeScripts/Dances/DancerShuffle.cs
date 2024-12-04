@@ -17,11 +17,14 @@ namespace Puppet
         [SerializeField] private int _seed = 123; 
         private int _currentSeed = 123; 
 
-        private float _transitionSpeed = 5.0f;
+        [SerializeField] private float _transitionSpeed = 5.0f;
 
         // body rotation vairables
         private Quaternion _bodyRotation;
         private Quaternion _targetRotation;
+
+        [SerializeField] private float _bodyTurnAmount = 20f; 
+        [SerializeField] private int _bodyTurnRandom = 0; 
 
         // body position variables
         private Vector3 _bodyPosition;
@@ -34,17 +37,24 @@ namespace Puppet
         private Transform _currentTransform = null; 
         private Vector3[] _hands = new Vector3[2];
 
+        [SerializeField] private Vector3 _handPosition = new Vector3(0.30f, 0.65f, 0.10f);
+        [SerializeField] private float _handModulateY = 0.2f;
+        [SerializeField] private float _handModulateZ = 0.6f;
+
+
         // Foot and knee positions
         private Vector3[] _feet = new Vector3[2];
         private Vector3[] _knees = new Vector3[2];
 
         // head look position
         [SerializeField] private Vector3 _headLookAtPos; 
+        [SerializeField] private float _headBend = 0.5f; 
         private Vector3 _headPos;
 
         // spine variables
         private Quaternion _spine; 
         [SerializeField] private int _spineTwistToggle = 0; 
+        [SerializeField] private float _spineBend = 20.0f; 
 
         Animator _animator;
 
@@ -54,6 +64,18 @@ namespace Puppet
             this.propInts["Noise Seed"] = new SetInt((x) => _seed = x, 0, 300, _seed); 
             this.propInts["Spine Twist Toggle"] = new SetInt((x) => _spineTwistToggle = x, 0, 1, _spineTwistToggle); 
             this.propFloats["Max Jumping Height"] = new SetFloat((x) => _maxJumpingHeight = x, 0.2f, 5.0f, _maxJumpingHeight);
+            this.propFloats["Transition Speed"] = new SetFloat((x) => _transitionSpeed = x, 0.1f, 10.0f, _transitionSpeed); 
+            this.propFloats["Spine Bend"] = new SetFloat((x) => _spineBend = x, 0.0f, 40f, _spineBend ); 
+            this.propFloats["Head Bend"] = new SetFloat((x) => _headBend = x, 0.0f, 2.0f, _headBend ); 
+            // this.propFloats["Hand Position X"] = new SetFloat((x) => _handPosition.x = x, -1f, 1f, _handPosition.x); 
+            // this.propFloats["Hand Position Y"] = new SetFloat((x) => _handPosition.y = x, -1f, 1f, _handPosition.y); 
+            // this.propFloats["Hand Position Z"] = new SetFloat((x) => _handPosition.z = x, -1f, 1f, _handPosition.z); 
+
+            this.propFloats["Hand Modulate Y"] = new SetFloat((x) => _handModulateY = x, 0.0f, 2f, _handModulateY); 
+            this.propFloats["Hand Modulate Z"] = new SetFloat((x) => _handModulateZ = x, 0.0f, 2f, _handModulateZ); 
+
+            this.propFloats["Body Turn Amount"] = new SetFloat((x) => _bodyTurnAmount = x, 0.0f, 360f, _bodyTurnAmount); 
+            this.propInts["Body Turn Random Toggle"] = new SetInt((x) => _bodyTurnRandom = x, 0, 1, _bodyTurnRandom); 
         }
 
         void Start()
@@ -107,7 +129,7 @@ namespace Puppet
         {
             var modulate = Mathf.Sin(2 * Mathf.PI * beatManager.BeatTime + 0.5f);
             var pos = _headLookAtPos; 
-            pos.y += modulate * 0.5f;
+            pos.y += modulate * _headBend;
             
             _headPos = _bodyRotation * pos + _bodyPosition;
         }
@@ -117,11 +139,11 @@ namespace Puppet
         {
             var modulate = Mathf.Sin(2 * Mathf.PI * beatManager.BeatTime); // -1 to 1 modulation 
             if (_spineTwistToggle == 1) {
-                _spine = Quaternion.AngleAxis(modulate * 20f, Vector3.right);
+                _spine = Quaternion.AngleAxis(modulate * _spineBend, Vector3.right);
             }
             else 
             {
-                _spine = Quaternion.AngleAxis(modulate * 20f, Vector3.forward);
+                _spine = Quaternion.AngleAxis(modulate * _spineBend, Vector3.forward);
             }
             //
             
@@ -132,8 +154,7 @@ namespace Puppet
         {
             // index = 0 (left) else index = 1 (right)
             for (int index = 0; index < 2; ++index) {
-                Vector3 handPosition = new Vector3(0.30f, 0.65f, 0.10f);
-                var pos = handPosition; 
+                var pos = _handPosition; 
                 if (index == 0) pos.x *= -1; 
 
                 if (beatManager.NewCycle)
@@ -146,8 +167,8 @@ namespace Puppet
 
                 var modulate = Mathf.Sin(2 * Mathf.PI * beatManager.BeatTime + 1.0f);
  
-                pos.y += modulate * 0.2f;
-                pos.z += Unity.Mathematics.math.remap(-1, 1, 0.6f, 0.0f, modulate); 
+                pos.y += modulate * _handModulateY;
+                pos.z += Unity.Mathematics.math.remap(-1, 1, _handModulateZ, 0.0f, modulate); 
                 _hands[index] = _bodyRotation * pos + _bodyPosition;
 
             }
@@ -171,8 +192,10 @@ namespace Puppet
             float newY = modulate * _maxJumpingHeight + _bodyPosOffset;
 
             // Apply the new Y position
-            _bodyPosition.y = transform.position.y + 0.5f + newY;
+            _bodyPosition.y = transform.position.y + 0.7f + newY;
         }
+
+        private bool _bodyTurn = true; 
 
         /// <summary>
         /// Updates the body rotation with smooth transitions.
@@ -181,9 +204,21 @@ namespace Puppet
         {
             if (beatManager.NewCycle)
             {
+                float randomYaw; 
                 // Generate a new random target rotation on each cycle
-                float randomYaw = UnityEngine.Random.Range(-360.0f, 360.0f); // Random yaw rotation
+                if (_bodyTurnRandom == 1) {
+                    randomYaw = UnityEngine.Random.Range(-_bodyTurnAmount, _bodyTurnAmount); // Random yaw rotation
+                }
+                else {
+                    randomYaw = _bodyTurnAmount; 
 
+                    if (_bodyTurn) {
+                        randomYaw *= -1f; 
+                    }
+
+                    _bodyTurn = !_bodyTurn; 
+                }
+                
                 Vector3 currentEuler = _bodyRotation.eulerAngles;
                 _targetRotation = Quaternion.Euler(currentEuler.x, randomYaw, currentEuler.z);
             }
