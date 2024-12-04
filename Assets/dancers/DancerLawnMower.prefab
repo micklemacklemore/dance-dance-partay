@@ -119,7 +119,7 @@ GameObject:
   - component: {fileID: 914453549499145537}
   - component: {fileID: 7324405694625402446}
   m_Layer: 0
-  m_Name: DancerRasputin
+  m_Name: DancerLawnMower
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -152,7 +152,7 @@ Animator:
   m_GameObject: {fileID: 914453549506408067}
   m_Enabled: 1
   m_Avatar: {fileID: 9000000, guid: a2e23193c976434eb66491671c592689, type: 3}
-  m_Controller: {fileID: 9100000, guid: fc96cef35175e474c9176af97d974491, type: 2}
+  m_Controller: {fileID: 9100000, guid: be2d828c42a75bb4d99db564eabf3bbd, type: 2}
   m_CullingMode: 1
   m_UpdateMode: 0
   m_ApplyRootMotion: 1

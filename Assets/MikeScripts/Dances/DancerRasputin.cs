@@ -12,9 +12,9 @@ namespace Puppet
         [SerializeField] public float _frequency = 1.2f;
         [SerializeField] private AudioSource audioSource = null;
 
-        [SerializeField] private bool metronome = false; 
+        [SerializeField] public bool metronome = false; 
 
-        [SerializeField] private int _seed = 123; 
+        [SerializeField] public int _seed = 123; 
         private int _currentSeed = 123; 
 
         private float _transitionSpeed = 5.0f;
@@ -41,7 +41,7 @@ namespace Puppet
         private Vector3[] _knees = new Vector3[2];
 
         // head look position
-        [SerializeField] private Vector3 _headLookAtPos; 
+        [SerializeField] public Vector3 _headLookAtPos; 
         private Vector3 _headPos;
 
         // spine variables

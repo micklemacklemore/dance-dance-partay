@@ -7,7 +7,7 @@ using Unity.Mathematics;
 
 namespace Puppet
 {
-    public class DancerShuffle : DancerBase
+    public class DancerPose : DancerBase
     {
         [SerializeField] public float _frequency = 1.2f;
         [SerializeField] private AudioSource audioSource = null;
@@ -30,7 +30,7 @@ namespace Puppet
         private Vector3 _bodyPosition;
         [SerializeField] public float _maxJumpingHeight = 0.5f;
         private float _bodyPosOffset = 0.0f;
-        private float _bodyPosTargetOffset = 0.5f;
+        private float _bodyPosTargetOffset = 0.1f;
 
         // arm position variables
         private float _armPosTargetOffset = 0.5f;
@@ -54,7 +54,7 @@ namespace Puppet
         // spine variables
         private Quaternion _spine; 
         [SerializeField] public int _spineTwistToggle = 0; 
-        [SerializeField] public float _spineBend = 20.0f; 
+        [SerializeField] public float _spineBend = 2.0f; 
 
         Animator _animator;
 
@@ -115,11 +115,12 @@ namespace Puppet
             UpdateBodyPosition();
             UpdateBodyRotation();
             UpdateSpine(); 
-            UpdateArmPosition(); 
             UpdateHeadPosition(); 
 
             // Play audio on beat
             if (metronome) PlayMetronomeOnBeat();
+
+            _animator.SetInteger("poseIndex", (int)beatManager.BeatCounter % 2); 
 
             // DrawRay(); 
             _currentTransform = transform; 
@@ -179,7 +180,7 @@ namespace Puppet
             if (beatManager.NewCycle)
             {
                 // Generate a new target offset for the next jump height
-                _bodyPosTargetOffset = (UnityEngine.Random.Range(0.5f, 1.5f)) * _maxJumpingHeight;
+                _bodyPosTargetOffset = (UnityEngine.Random.Range(0.0f, 0.2f));
             }
 
             // Smoothly transition _offset towards _targetOffset
@@ -189,7 +190,7 @@ namespace Puppet
             var modulate = Mathf.Sin(2 * Mathf.PI * beatManager.BeatTime);
 
             // Calculate the new Y position based on sine wave modulation
-            float newY = modulate * _maxJumpingHeight + _bodyPosOffset;
+            float newY = modulate * 0.1f + _bodyPosOffset;
 
             // Apply the new Y position
             _bodyPosition.y = transform.position.y + 0.7f + newY;
@@ -312,16 +313,6 @@ namespace Puppet
             _animator.SetIKHintPosition(AvatarIKHint.RightKnee, _knees[1]);
             _animator.SetIKHintPositionWeight(AvatarIKHint.LeftKnee, 1);
             _animator.SetIKHintPositionWeight(AvatarIKHint.RightKnee, 1);
-
-            // update hand position
-            _animator.SetIKPosition(AvatarIKGoal.LeftHand, _hands[0]);
-            _animator.SetIKPosition(AvatarIKGoal.RightHand, _hands[1]);
-            _animator.SetIKPositionWeight(AvatarIKGoal.LeftHand, 1);
-            _animator.SetIKPositionWeight(AvatarIKGoal.RightHand, 1);
-
-            // update hand rotation
-            _animator.SetBoneLocalRotation(HumanBodyBones.LeftHand, Quaternion.AngleAxis(-60, Vector3.up)); 
-            _animator.SetBoneLocalRotation(HumanBodyBones.RightHand, Quaternion.AngleAxis(-60, Vector3.up)); 
 
             // update spine
             _animator.SetBoneLocalRotation(HumanBodyBones.Spine, _spine);

@@ -179,7 +179,17 @@ MonoBehaviour:
   audioSource: {fileID: 5467340986208738367}
   metronome: 0
   _seed: 123
+  _transitionSpeed: 5
+  _bodyTurnAmount: 20
+  _bodyTurnRandom: 0
+  _maxJumpingHeight: 0.2
+  _handPosition: {x: 0.3, y: 0.65, z: 0.1}
+  _handModulateY: 0
+  _handModulateZ: 0
   _headLookAtPos: {x: 0, y: 0, z: 0}
+  _headBend: 0
+  _spineTwistToggle: 0
+  _spineBend: 0
 --- !u!1 &2234486874883696261
 GameObject:
   m_ObjectHideFlags: 0
