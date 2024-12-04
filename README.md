@@ -1,6 +1,6 @@
 # Final Project!
 
-WebGL Demo: https://micklemacklemore.github.io/dance-dance-partay/
+Play WebGL Demo!: https://micklemacklemore.github.io/dance-dance-partay/
 
 Demo Video: https://drive.google.com/file/d/1NqF9N5EjOLA-yvkoG1ig8FNmMsNSRhql/view?usp=sharing
 
